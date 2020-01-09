@@ -340,6 +340,48 @@ class ShoppingController extends Controller
        
         }
 
+
+        
+     //-----------------------------------------------------------------------------------------------------------------------------------------------
+    //function to get categories from database for add products page
+    public function getmysales()
+    {
+        if (!session()->exists('attendant')) {
+            return redirect('login');
+        }else {
+            $data=session()->get('attendant');
+            $userId=$data['id'];
+            $now=strtotime('now');
+            $today=date('d',$now);
+            $thismonth=date('F',$now);
+            $thisyear=date('Y',$now);
+            //get categories from DB
+            $mysalecount=DB::table('invoices')->whereRaw('UsersID=?',[$userId])->count();
+            $mysalesTM=DB::table('invoices')->whereRaw('Month=? and Year=? and UsersID=?',[$thismonth,$thisyear,$userId])->count();
+            $mysalesT=DB::table('invoices')->whereRaw('Day=? and Month=? and Year=? and UsersID=?',[$today,$thismonth,$thisyear,$userId])->count();
+            $sales=DB::table('invoices')
+            ->join('users','users.User_ID','=','invoices.UsersID')
+            ->join('currency','currency.id','=','invoices.currency_id')
+            ->whereRaw('UsersID=?',[$userId])
+            ->OrderBY('Time','desc')
+            ->get();
+            foreach ($sales as $sale ) {
+                $item[$sale->ID]=DB::table('invoiceitem')
+                ->join('Products','Products.ID','=','invoiceitem.ProductsID')
+                ->where('InvoicesID',$sale->ID)->get();
+            }
+            
+            //return the products view along with the product data
+           return view('Attendant/mysales',[
+               'sales'=>$sales,
+               'item'=>$item,
+               'mysalesTM'=>$mysalesTM,
+               'mysalesT'=>$mysalesT,
+               'salecount'=>$mysalecount,
+           ]);  
+        }   
+       
+        }
          //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for add products page
     public function addcategory()

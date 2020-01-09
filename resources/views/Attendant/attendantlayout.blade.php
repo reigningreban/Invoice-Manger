@@ -34,9 +34,9 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link @yield('statsA')" href="statistics">
+            <a class="nav-link @yield('salesA')" href="mysales">
               <span data-feather="file"><i class="fas fa-chart-pie"></i></span>
-              My stats
+              My sales
             </a>
           </li>
           

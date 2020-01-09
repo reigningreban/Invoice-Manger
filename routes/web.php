@@ -54,7 +54,7 @@ Route::post('ajaxRequest', 'AjaxController@ajaxRequestPost')->name('ajaxRequest.
 Route::get('admin/dash', 'invoiceController@index');
 
 Route::get('attendant/dash','shoppingController@index');
-Route::view('attendant/statistics','/attendant/statistics');
+Route::get('attendant/mysales','shoppingController@getmysales');
 Route::post('admin/addcategory','shoppingController@addcategory');
 Route::post('admin/edituser/{id}','invoiceController@editUser');
 Route::post('attendant/idsearch','shoppingController@idsearch');
