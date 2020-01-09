@@ -32,7 +32,7 @@
                         <th>Time</th>
                         <th>Product(s)</th>
                         <th>Quantity</th>
-                        <th>Sold by</th>
+                        
                         <th>Total Price</th>
                     </tr>
                 </thead>
@@ -51,7 +51,7 @@
                                     {{$product->Quantity}}<br>
                                 @endforeach
                             </td>
-                            <td>{{$sale->Username}}</td>
+                            
                             <td>{{$sale->symbol}}{{number_format((float)$sale->Totalcost, 2, '.', '')}}</td>
                         </tr>
                     @endforeach

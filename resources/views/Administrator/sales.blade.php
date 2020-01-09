@@ -9,7 +9,7 @@
         <h1 class="h2">Sales</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group mr-2">
-            
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">Export</button>
           </div>
          
         </div>
@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        <div class="table-responsive shad">
+        <div class="table-responsive shad" id="printarea">
             <table class="table table-bordered table-sm">
                 <thead class="thead-dark">
                     <tr>

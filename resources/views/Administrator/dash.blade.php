@@ -62,7 +62,7 @@ if (session()->exists('details')) {
                     </a>
                 </div>
                 <div class="col-xl-3 col-sm-6 py-2">
-                  <a href="">
+                  <a href="statistics">
                     <div class="card bg-warning text-white h-100">
                         <div class="card-body bg-warning">
                             <div class="rotate">
@@ -88,7 +88,7 @@ if (session()->exists('details')) {
                                 <i class="fas fa-credit-card fa-4x"></i>
                             </div>
                             <h6 class="text-uppercase">Sales</h6>
-                            <h3 class="display-6">Today: {{$todaySales}}({{$details->symbol}}{{number_format((float)$todayCash, 2, '.', '')}})</h3>
+                            <h3 class="display-6">Today: {{$todaySales}} ({{$details->symbol}}{{number_format((float)$todayCash, 2, '.', '')}})</h3>
                         </div>
                     </div>
                     </a>

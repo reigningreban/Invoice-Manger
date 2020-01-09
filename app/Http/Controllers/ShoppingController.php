@@ -515,4 +515,41 @@ class ShoppingController extends Controller
            ]);  
         }  
 
+    
+        
+             //-----------------------------------------------------------------------------------------------------------------------------------------------
+    //function to get categories from database for add products page
+        public function getstats()
+        {   
+            
+            $now=strtotime('now');
+            $today=date('d',$now);
+            $thismonth=date('F',$now);
+            $thisyear=date('Y',$now);
+            $mysalecount;
+            $mysalesTM;
+            $mysalesT;
+            $salesmade;
+            $attendants=DB::table('users')->where('UserTypesID','3')->get();
+            foreach ($attendants as $attendant ) {
+                $userId=$attendant->User_ID;
+                $mysalecount[$attendant->User_ID]=DB::table('invoices')->whereRaw('UsersID=?',[$userId])->count();
+                $salesmade[$attendant->User_ID]=DB::table('invoices')->whereRaw('UsersID=?',[$userId])->sum('Totalcost');
+                $mysalesTM[$attendant->User_ID]=DB::table('invoices')->whereRaw('Month=? and Year=? and UsersID=?',[$thismonth,$thisyear,$userId])->count();
+                $mysalesT[$attendant->User_ID]=DB::table('invoices')->whereRaw('Day=? and Month=? and Year=? and UsersID=?',[$today,$thismonth,$thisyear,$userId])->count();
+                
+            }
+            
+           
+            
+            //return the products view along with the product data
+           return view('Administrator/statistics',[
+               'attendants'=>$attendants,
+               'mysalesTM'=>$mysalesTM,
+               'mysalesT'=>$mysalesT,
+               'salecount'=>$mysalecount,
+               'salesmade'=>$salesmade
+           ]); 
+
+        }
 }

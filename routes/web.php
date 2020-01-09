@@ -55,6 +55,7 @@ Route::get('admin/dash', 'invoiceController@index');
 
 Route::get('attendant/dash','shoppingController@index');
 Route::get('attendant/mysales','shoppingController@getmysales');
+Route::get('admin/statistics','shoppingController@getstats');
 Route::post('admin/addcategory','shoppingController@addcategory');
 Route::post('admin/edituser/{id}','invoiceController@editUser');
 Route::post('attendant/idsearch','shoppingController@idsearch');
