@@ -45,21 +45,23 @@ Route::get('login', function () {
         return view('login');
     }
 });
-Route::post('attendant/dash','shoppingController@categoryRequest')->name('fetchproducts.post');
+// Route::post('attendant/dash','shoppingController@categoryRequest')->name('fetchproducts.post');
+Route::get('attendant/filtercat/{id}','shoppingController@categoryRequest');
+Route::get('tester/{id}','testController@categoryRequest');
 
 
 Route::get('ajaxRequest', 'AjaxController@ajaxRequest');
 Route::post('ajaxRequest', 'AjaxController@ajaxRequestPost')->name('ajaxRequest.post');
 
 Route::get('admin/dash', 'invoiceController@index');
-
+Route::view('attendant/receipt','Attendant/receipt');
 Route::get('attendant/dash','shoppingController@index');
 Route::get('attendant/mysales','shoppingController@getmysales');
 Route::get('admin/statistics','shoppingController@getstats');
 Route::post('admin/addcategory','shoppingController@addcategory');
 Route::post('admin/edituser/{id}','invoiceController@editUser');
-Route::post('attendant/idsearch','shoppingController@idsearch');
-Route::post('attendant/namesearch','shoppingController@namesearch');
+Route::get('attendant/idsearch/{id}','shoppingController@idsearch');
+Route::get('attendant/namesearch/{name}','shoppingController@namesearch');
 Route::post('admin/editproduct/{id}','invoiceController@editProduct');
 Route::post('admin/adduser','invoiceController@adduser');
 Route::post('admin/addproduct','invoiceController@addproduct');
@@ -70,7 +72,10 @@ Route::get('logout','invoiceController@logout');
 Route::get('autologout','invoiceController@autologout');
 Route::get('admin/adduser','invoiceController@usertypes');
 Route::get('attendant/clear','shoppingController@clearall');
-Route::post('attendant/handler','shoppingController@add_to_cart')->name('addtocart');
+Route::post('attendant/handler','shoppingController@add_to_cart');
+Route::get('attendant/upcart','shoppingController@updatecart');
+Route::get('attendant/cartcontent','shoppingController@cartcheck');
+Route::get('attendant/totcost','shoppingController@totcost');
 Route::post('attendant/idhandler','shoppingController@add_to_cartid')->name('addtocart');
 Route::post('attendant/changeqty','shoppingController@changeqty')->name('changeqty');
 Route::get('attendant/cartdelete/{id}','shoppingController@deleteproduct');
@@ -82,6 +87,8 @@ Route::post('admin/sales/filtermonth','shoppingController@filtermonth');
 Route::post('admin/sales/filterday','shoppingController@filterday');
 Route::post('admin/editcompany','invoiceController@editcompany');
 Route::get('admin/sales','shoppingController@getsales');
+
+
 
 
 

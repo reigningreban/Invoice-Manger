@@ -26,10 +26,10 @@
 
         @foreach($categories as $name)
             
-        
-      <h2>Category {{$name->ID}}: {{$name->category}} </h2>
-      <div class="table-responsive shad">
-        <table class="table table-striped table-sm">
+      <div class="shad">
+      <h3 class="text-center">Category {{$name->ID}}: {{$name->category}} </h3>
+      <div class="table-responsive ">
+        <table class="table table-striped table-sm prodlist">
           <thead>
             
             <tr>
@@ -68,18 +68,22 @@
 
                         </tr>
                
-             
+            
             @endforeach
              
           
           </tbody>
         </table>
       </div>
+     </div>
       @endforeach
+     
       </div>
     </main>
     
-<script>
-  
-</script>
+    <script>
+    $(document).ready(function() {
+        $('.prodlist').DataTable();
+    } );
+  </script>
 @endsection

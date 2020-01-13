@@ -13,19 +13,19 @@
           
         </div>
       </div>
-
+    @if(isset($salecount))
     <div class="container">
       <div class="row shad font-weight-bold">
         <div class="col"></div>
-        <div class="col">Sale count: {{$salecount}}</div>
-        <div class="col">Sales This month: {{$mysalesTM}}</div>
+        <div class="col">Sale count: {{$salecount }}</div>
+        <div class="col">Sales This month: {{$mysalesTM }}</div>
         <div class="col">Sales Today: {{$mysalesT}} </div>
         <div class="col"></div>
         
       </div>
       
     <div class="table-responsive shad">
-            <table class="table table-bordered table-sm">
+            <table class="table table-bordered table-sm" id="mysales">
                 <thead class="thead-dark">
                     <tr>
                         <th>Date</th>
@@ -59,8 +59,19 @@
             </table>
         </div>
     </div>
-     
+    @else
+    <div class="container">
+        <div class="row shad text-center">
+            <h3 text-center>You don't have any sales yet</h3>
+        </div>
+    </div>
+     @endif
       
     </main>
     
+    <script>
+    $(document).ready(function() {
+        $('#mysales').DataTable();
+    } );
+  </script>
 @endsection

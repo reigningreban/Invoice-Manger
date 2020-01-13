@@ -7,14 +7,22 @@
   }
   .shad{
 	box-shadow: 2px 3px 4px;
-	background-color:  #b3b3b3;
+	background-color:  #fff;
 	padding: 30px;
     margin-bottom: 10px;
     margin-top: 20px;
 	
 }
+.limited{
+    display: block;
+    white-space: nowrap;
+    width:5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+     /* This needs to match the color of the anchor tag */
+  }
 .modal-content{
-    background-color:  #b3b3b3 !important;
+    background-color:  #fff !important;
 }
 .modal-footer{
     justify-content: center !important;

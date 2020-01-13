@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
   
   <ul class="navbar-nav px-3">
     <li class="nav-item text-nowrap">
-      <a class="nav-link " href="/logout"><button class="btn btn-outline-secondary signout"><i class="fas fa-power-off"></i> Logout</button></a>
+      <a class="nav-link top" href="/logout"><button class="btn btn-outline-secondary signout"><i class="fas fa-power-off"></i><b> Logout</b></button></a>
     </li>
   </ul>
 </nav>

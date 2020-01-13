@@ -12,12 +12,22 @@ use Illuminate\Support\Facades\Hash;
 
 class ShoppingController extends Controller
 {
+    //Function to check if an admin is logged in
+    public function getattlog()
+    {
+        if (!session()->exists('attendant')) {
+            return false;
+        }else {
+            return true;
+        }   
+    }
      //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for filtering products 
     public function index()
     {
+        $logged=$this->getattlog();
         //check if an attendant is logged in
-     if (!session()->exists('attendant')) {
+     if (!$logged) {
          return redirect('login');
      }else {
         $data=session()->get('attendant');
@@ -39,28 +49,160 @@ class ShoppingController extends Controller
      } 
     }
 
+    public function getadminlog()
+    {
+        if (!session()->exists('admin')) {
+            return false;
+        }else {
+            return true;
+        }   
+    }
+
      //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for add products page
-    public function categoryRequest()
+    public function categoryRequest($id)
+     {
+         $logged=$this->getattlog();
+         if (!$logged) {
+             return redirect('login');
+         }else{
+
+         
+        if (($id==0)) {
+            return "<div></div>";
+        }else {
+            $products=DB::table('products')->where('CategoriesID',$id)->get();
+        
+            $table=
+            "    <div class='table-responsive' >
+            <table class='table table-striped table-sm text-left'>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Instock</th>
+                        <th>Qty &nbsp &nbsp   Add</th>
+                    </tr>
+                </thead>
+                <tbody>";
+                
+                        foreach($products as $good){
+                            $tot=$good->unit_cost+$good->VAT;
+                        $table.=   "
+                                <tr>
+                                    
+                                        <td>$good->Product_name</td>
+                                        <td>$tot</td>
+                                        <td>$good->instock</td>
+                                        <td>
+                                            
+                                    
+                                            <form action='/attendant/handler' class='cartadd' method='POST'>
+                                                <input type='number' min='1' value='1' class='qty' name='qty'> &nbsp
+                                                <input type='hidden' name='prod_id' value='$good->ID'>
+                                                <button type='submit' class='btn btn-primary subtocart' value='submit'>
+                                                    <i class='fas fa-plus'></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    
+                                </tr>
+                            ";
+                        }
+
+                        $table.="
+                        </tbody>
+            </table>
+        </div>"
+            ;
+            
+            return $table;
+        
+        }
+         
+    }
+        
+    }
+
+
+    
+
+    public function updatecart()
     {
+        $logged=$this->getattlog();
+        if (!$logged) {
+            return redirect('login');
+        }else {
+            
+       
         $data=session()->get('attendant');
         $userId=$data['id'];
         $count=DB::table('cart')->whereRaw('user_id = ?',[$userId])->count();
-        $categoryid=request('category');
-        $products=DB::table('products')->where('CategoriesID',$categoryid)->get();
-        $categories=DB::table('categories')->get();
-        $pay_methods=DB::table('pay_methods')->get();
         $cart=DB::table('cart')->join('Products','Products.ID','=','cart.product_id')
         ->where('cart.user_id',$userId)->get();
+        $cost=0;
+        $vat=0;
+        $table="
+        <div class='table-responsive bord-b mb-2'>
+                         <table class='table table-striped table-sm'>
+                            
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                    <th>remove</th>
+                                </tr>
+                            </thead>
+                            <tbody id='carttable'>
+                            ";
+                            foreach($cart as $item){
+                                $cost+=($item->qty*$item->unit_cost);
+                                $vat+=($item->qty*$item->VAT);
+                               $table.= 
+                               "<tr>
+                    
+                                    <td><span class='limited'>$item->Product_name<span></td>
+                                    <td>
+                                        <form action='changeqty' method='post'>
+                                            <input type='hidden' name='cartid' value='$item->id'>
+                                            <input type='number' min='1' class='qty qtychange' name='newqty' value='$item->qty'>
+                                            
+                                        </form>
+                                    </td>
+                                    <td>".number_format((float)$item->unit_cost, 2, '.', '')."</td>
+                                    <td>".number_format((float)($item->qty*$item->unit_cost), 2, '.', '')."</td>
+                                
+                                    <td><a href='/attendant/cartdelete/$item->id' class='cartremove'><i class='fas fa-times close-icon'></i></a></td>
+                                </tr>";
+                            }
+
+                           $table .=" </tbody>
+                         </table>
+                         <table class='text-left'>
+                             <tr>
+
+                                 <td>Net Cost:</td>
+                                 <td>".number_format((float)$cost, 2, '.', '')."</td>
+                             </tr>
+                             <tr>
+                                 <td>VAT:</td>
+                                 <td>".number_format((float)$vat, 2, '.', '')."</td>
+                             </tr>
+                             <tr>
+                                 <td>Total Cost:</td>
+                                 <td id='containscost'>".number_format((float)($cost+$vat), 2, '.', '')."</td>
+                             </tr>
+                            
+                                
+                            
+                         </table>   
+                        </div>";
         
-        return view('/attendant/dash',[
-            'products'=>$products,
-            'categories'=>$categories,
-            'categoryid'=>$categoryid,
-            'cart'=>$cart,
-            'count'=>$count,
-            'pay_methods'=>$pay_methods
-        ]);
+        
+        return $table;
+                        }
     }
 
       //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -111,8 +253,23 @@ class ShoppingController extends Controller
         }
         
 
-        $function=$this->categoryRequestid($id);
-        return $function;
+       return 'done';
+    }
+
+    public function cartcheck()
+    {
+        
+        $data=session()->get('attendant');
+        $userId=$data['id'];
+        $count=DB::table('cart')->whereRaw('user_id = ?',[$userId])->count();
+        if ($count>0) {
+            return "yes";
+        }else{
+           return 'no';
+        }
+        
+
+       
     }
      //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for add products page
@@ -156,30 +313,71 @@ class ShoppingController extends Controller
 
       //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for add products page
-    public function idsearch()
+    public function idsearch($id)
     {
        
         $data=session()->get('attendant');
         $userId=$data['id'];
-        $id=request('id_search');
+        
         $product=DB::table('Products')->where('ID',$id)->first();
         
-        $count=DB::table('cart')->whereRaw('user_id = ?',[$userId])->count();
-         //get categories
-         $categories=DB::table('categories')->get();
-         $pay_methods=DB::table('pay_methods')->get();
-         $cart=DB::table('cart')->join('Products','Products.ID','=','cart.product_id')
-        ->where('cart.user_id',$userId)->get();
+        if(isset($product)){
+
+        
+            $table=
+            "    <div class='table-responsive' >
+            <table class='table table-striped table-sm text-left'>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Instock</th>
+                        <th>Qty &nbsp &nbsp   Add</th>
+                    </tr>
+                </thead>
+                <tbody>";
+                
+                       
+                            $tot=$product->unit_cost+$product->VAT;
+                        $table.=   "
+                                <tr>
+                                    
+                                        <td>$product->Product_name</td>
+                                        <td>$tot</td>
+                                        <td>$product->instock</td>
+                                        <td>
+                                            
+                                    
+                                            <form action='/attendant/handler' class='cartadd' method='POST'>
+                                                <input type='number' min='1' value='1' class='qty' name='qty'> &nbsp
+                                                <input type='hidden' name='prod_id' value='$product->ID'>
+                                                <button type='submit' class='btn btn-primary subtocart' value='submit'>
+                                                    <i class='fas fa-plus'></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    
+                                </tr>
+                            ";
+                        
+
+                        $table.="
+                        </tbody>
+            </table>
+        </div>"
+            ;
+            
+            return $table;
+        
+            }else{
+                return "<div class='errors text-center'>No product found</div>";
+            }
+        
+         
         
          //return the add user view
-        return view('Attendant/dash',[
-            'categories'=>$categories,
-            'cart'=>$cart,
-            'count'=>$count,
-            'product'=>$product,
-            'idsearch'=>$id,
-            'pay_methods'=>$pay_methods
-        ]);
+       
+        
     }
 
        //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -211,39 +409,63 @@ class ShoppingController extends Controller
 
       //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for add products page
-    public function namesearch()
+    public function namesearch($name)
     {
        
         $data=session()->get('attendant');
         $userId=$data['id'];
-        $name=request('namesearch');
         $named="%".$name."%";
-        $product=DB::table('Products')->whereRaw("Product_name LIKE ?",[$named])->get();
+        $products=DB::table('Products')->whereRaw("Product_name LIKE ?",[$named])->get();
         
-        $count=DB::table('cart')->whereRaw('user_id = ?',[$userId])->count();
-         //get categories
-         $categories=DB::table('categories')->get();
-         $pay_methods=DB::table('pay_methods')->get();
-         $cart=DB::table('cart')->join('Products','Products.ID','=','cart.product_id')
-        ->where('cart.user_id',$userId)->get();
         if ((DB::table('Products')->whereRaw("Product_name LIKE ?",[$named])->count())==0) {
-            return view('Attendant/dash',[
-                'categories'=>$categories,
-                'cart'=>$cart,
-                'count'=>$count,
-                'namesearcherror'=>'No product found',
-                'namesearch'=>$name,
-                'pay_methods'=>$pay_methods
-            ]);
+            return "<div class='errors text-center'>No product found</div>";
+            
         }else {
-            return view('Attendant/dash',[
-            'categories'=>$categories,
-            'cart'=>$cart,
-            'count'=>$count,
-            'goods'=>$product,
-            'namesearch'=>$name,
-            'pay_methods'=>$pay_methods
-        ]);
+            $table=
+            "    <div class='table-responsive' >
+            <table class='table table-striped table-sm text-left'>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Instock</th>
+                        <th>Qty &nbsp &nbsp   Add</th>
+                    </tr>
+                </thead>
+                <tbody>";
+                
+                        foreach($products as $good){
+                            $tot=$good->unit_cost+$good->VAT;
+                        $table.=   "
+                                <tr>
+                                    
+                                        <td>$good->Product_name</td>
+                                        <td>$tot</td>
+                                        <td>$good->instock</td>
+                                        <td>
+                                            
+                                    
+                                            <form action='/attendant/handler' class='cartadd' method='POST'>
+                                                <input type='number' min='1' value='1' class='qty' name='qty'> &nbsp
+                                                <input type='hidden' name='prod_id' value='$good->ID'>
+                                                <button type='submit' class='btn btn-primary subtocart' value='submit'>
+                                                    <i class='fas fa-plus'></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    
+                                </tr>
+                            ";
+                        }
+
+                        $table.="
+                        </tbody>
+            </table>
+        </div>"
+            ;
+            
+            return $table;
+        
         } 
         
     }
@@ -298,7 +520,7 @@ class ShoppingController extends Controller
             DB::update('update products set instock=?  WHERE ID = ? ',[$newqty,$productId]);
         }
         DB::delete('delete from cart where user_id=?',[$userId]);
-        return redirect('attendant/dash');
+        return $this->receipt();
         }
     
 
@@ -306,7 +528,20 @@ class ShoppingController extends Controller
     //function to get categories from database for add products page
     public function receipt()
     {   
-       
+        
+        $data=session()->get('attendant');
+        $userId=$data['id'];
+        $invoice=DB::table('invoices')
+        ->join('pay_methods','pay_methods.id','=','invoices.pay_methodid')
+        ->join('users','users.User_ID','=','invoices.UsersID')
+        ->where('UsersID',$userId)->OrderBY('Time','desc')->first();
+        $items=DB::table('invoiceitem')->join('products','products.ID','=','invoiceitem.ProductsID')
+        ->where('InvoicesID',$invoice->ID)->get();
+        
+        return view('attendant/receipt',[
+            'invoice'=>$invoice,
+            'items'=>$items
+        ]);
         }
 
 
@@ -359,26 +594,37 @@ class ShoppingController extends Controller
             $mysalecount=DB::table('invoices')->whereRaw('UsersID=?',[$userId])->count();
             $mysalesTM=DB::table('invoices')->whereRaw('Month=? and Year=? and UsersID=?',[$thismonth,$thisyear,$userId])->count();
             $mysalesT=DB::table('invoices')->whereRaw('Day=? and Month=? and Year=? and UsersID=?',[$today,$thismonth,$thisyear,$userId])->count();
-            $sales=DB::table('invoices')
+            $salescount=DB::table('invoices')
             ->join('users','users.User_ID','=','invoices.UsersID')
             ->join('currency','currency.id','=','invoices.currency_id')
             ->whereRaw('UsersID=?',[$userId])
             ->OrderBY('Time','desc')
-            ->get();
-            foreach ($sales as $sale ) {
-                $item[$sale->ID]=DB::table('invoiceitem')
-                ->join('Products','Products.ID','=','invoiceitem.ProductsID')
-                ->where('InvoicesID',$sale->ID)->get();
+            ->count();
+            if ($salescount>0) {
+                $sales=DB::table('invoices')
+                ->join('users','users.User_ID','=','invoices.UsersID')
+                ->join('currency','currency.id','=','invoices.currency_id')
+                ->whereRaw('UsersID=?',[$userId])
+                ->OrderBY('Time','desc')
+                ->get();
+                foreach ($sales as $sale ) {
+                    $item[$sale->ID]=DB::table('invoiceitem')
+                    ->join('Products','Products.ID','=','invoiceitem.ProductsID')
+                    ->where('InvoicesID',$sale->ID)->get();
+                }
+                
+                //return the products view along with the product data
+            return view('Attendant/mysales',[
+                'sales'=>$sales,
+                'item'=>$item,
+                'mysalesTM'=>$mysalesTM,
+                'mysalesT'=>$mysalesT,
+                'salecount'=>$mysalecount,
+            ]);  
+            }else {
+                return view('Attendant/mysales');
             }
             
-            //return the products view along with the product data
-           return view('Attendant/mysales',[
-               'sales'=>$sales,
-               'item'=>$item,
-               'mysalesTM'=>$mysalesTM,
-               'mysalesT'=>$mysalesT,
-               'salecount'=>$mysalecount,
-           ]);  
         }   
        
         }

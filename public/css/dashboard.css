@@ -55,8 +55,13 @@ body {
 .sidebar .nav-link.active .feather {
   color: inherit;
 }
-a.signout:hover{
+button.signout:hover{
     color: red !important;
+    background-color: #fff;
+    
+}
+a.top{
+  padding: 0;
 }
 
 .sidebar-heading {

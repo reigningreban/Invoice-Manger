@@ -13,7 +13,9 @@
                 <a href="/"><button class="btn btn-primary">Return to home</button></a>
             </p>
         </div>
-        </div>
+        </div><a href="/autologout" id="logout-link"></a>
+
     </div>
     </header>
+    <script src="{{asset('js/autologout.js')}}"></script>
 @endsection

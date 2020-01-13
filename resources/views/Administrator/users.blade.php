@@ -26,7 +26,7 @@
         
       
       <div class="table-responsive shad">
-        <table class="table table-striped table-sm">
+        <table class="table table-striped table-sm" id="userstable">
           <thead>
             
             <tr>
@@ -65,6 +65,9 @@
       </div>
      
     </main>
-    
-   
+<script>
+    $(document).ready(function() {
+        $('#userstable').DataTable();
+    } );
+  </script>
 @endsection
