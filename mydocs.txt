@@ -1,0 +1,37 @@
+The invoice manager is a system to manage the sales of goods and the inventory of a supermarket.
+
+The invoice manager has two classes of users, the attendant(s)/cashier(s) and the Administrator(s). 
+The invoice manager is very easy to use and has a very clear data flow.
+
+
+As a attendant, when you login, it takes you to the retail page where you can easily add products to a cart. 
+There are three ways to get a product you intend to add to cart.
+1). You can filter by category to see all the products in a single category.
+2). You can search the unique ID of each product to bring it up
+3). You can search all or part of the name of the product.
+
+When you have searched for the product you want, a row with the details of the product(s) appears and you can click the plus('+') button to add it to cart.
+By default only one of the product is added to cart but a qty field is available to increase or decrease the quantity of each good that want.
+After the good(s) have been added to cart, the quantity can still be editted by increases or decreasing the quantity field on the cart.
+If a good is no longer required, it can be removed from the cart by clicking the 'X' button at the end of the cart item.
+And if the entire sale is to be cancelled, the cart can be cleared by clicking the 'clear' button.
+When all the wanted goods have been added to cart, the attendant then checks out by clicking the 'check out' button. 
+The checkout button launches a pop up where the total cost is displayed and the payment method the customer chooses is selected.
+After the attendant has confirmed the payment, s/he clicks the 'paid' button to complete the sale. A receipt is automatically generated and the cart is cleared.
+The attendant can view all of his/her sales on the 'mysales' page.
+
+As an administrator logging in takes you the Administrator dashboard where you have access to all the information of the system.
+You can: 
+1). View all users 
+2). View all products 
+3). Edit individual users
+4). Edit individual products
+5). Add a new user
+6). Add a new product
+7). Edit the company's details
+8). View products low in stock
+9). View all sales
+10). View statistics of each attendant
+
+When adding a new product as an Admin, the 're-order level' field is for the least number of that product that can be in inventory before the system 
+flags the product as needing to be restocked.

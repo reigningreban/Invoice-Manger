@@ -32,18 +32,15 @@ class ShoppingController extends Controller
      }else {
         $data=session()->get('attendant');
         $userId=$data['id'];
-        $count=DB::table('cart')->whereRaw('user_id = ?',[$userId])->count();
+        
          //get categories
          $categories=DB::table('categories')->get();
          $pay_methods=DB::table('pay_methods')->get();
-         $cart=DB::table('cart')->join('Products','Products.ID','=','cart.product_id')
-        ->where('cart.user_id',$userId)->get();
+         
         
          //return the add user view
         return view('Attendant/dash',[
             'categories'=>$categories,
-            'cart'=>$cart,
-            'count'=>$count,
             'pay_methods'=>$pay_methods
         ]);
      } 
@@ -470,6 +467,79 @@ class ShoppingController extends Controller
         
     }
 
+
+     //-----------------------------------------------------------------------------------------------------------------------------------------------
+    //function to get categories from database for add products page
+    public function namesearchadmin($name)
+    {
+       
+        $data=session()->get('attendant');
+        $userId=$data['id'];
+        $named="%".$name."%";
+        $products=DB::table('Products')
+        ->join("categories","categories.ID","=","products.CategoriesID")
+        ->select("products.ID as id", "products.*","categories.*")
+        ->whereRaw("products.Product_name LIKE ? or categories.category like ? or products.ID = ?",[$named,$named,$name])->get();
+        
+        $count=DB::table('Products')
+        ->join("categories","categories.ID","=","products.CategoriesID")
+        ->select("products.ID as id", "products.*","categories.*")
+        ->whereRaw("products.Product_name LIKE ? or categories.category like ? or products.ID = ?",[$named,$named,$name])->count();
+
+        if ($count==0) {
+            return "<div class='errors text-center'>No product found</div>";
+            
+        }else {
+            $table=
+            "    <div class='table-responsive' >
+            <table class='table table-striped table-sm text-left'>
+                <thead>
+                <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Unit Cost</th>
+                
+                <th class='pr-3'>VAT</th>
+                <th>Instock</th>
+                <th>Reorder level</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+                </thead>
+                <tbody>";
+                
+                        foreach($products as $good){
+                            $tot=$good->unit_cost+$good->VAT;
+                        $table.=   "
+                        <tr>
+                        <td>".$good->id."</td>
+                        <td>".$good->Product_name."</td>
+                        <td>".$good->category."</td>
+                        <td  class='text-right pr-3'>".number_format((float)$good->unit_cost, 2, '.', '')."</td>
+                        
+                        <td>".number_format((float)$good->VAT, 2, '.', '')."</td>
+                        <td>".$good->instock."</td>
+                        <td>".$good->Reorder_level."</td>
+                        <td><a href='editproduct/".$good->ID."'><button type='button' class='btn btn-primary'><i class='far fa-edit'></i></button></a></td>
+                        <td><a href='deleteproduct/".$good->ID."' onclick='javascript: return confirm('Are you sure you want delete?')'><button type='button' class='btn btn-danger'><i class='fas fa-trash'></i></button></a></td>
+
+                    </tr>
+                            ";
+                        }
+
+                        $table.="
+                        </tbody>
+            </table>
+        </div>"
+            ;
+            
+            return $table;
+        
+        } 
+        
+    }
+
       //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for add products page
     public function checkout()
@@ -648,118 +718,118 @@ class ShoppingController extends Controller
         
          //-----------------------------------------------------------------------------------------------------------------------------------------------
     //function to get categories from database for add products page
-    public function filteryear()
-    {
-        $data= request()-> validate([
+    // public function filteryear()
+    // {
+    //     $data= request()-> validate([
             
-            'yearfilter'=>'required',
-        ]);
-            $yearfilter=request('yearfilter');
-            $years=DB::select(" select Distinct Year from invoices Order By Year desc");
-            $months=DB::select(" select Distinct Month from invoices where year=?",[$yearfilter]);
-            $sales=DB::table('invoices')
-            ->join('users','users.User_ID','=','invoices.UsersID')
-            ->join('currency','currency.id','=','invoices.currency_id')
-            ->where('Year',$yearfilter)
-            ->OrderBY('Time','desc')
-            ->get();
-            foreach ($sales as $sale ) {
-                $item[$sale->ID]=DB::table('invoiceitem')
-                ->join('Products','Products.ID','=','invoiceitem.ProductsID')
-                ->where('InvoicesID',$sale->ID)->get();
-            }
+    //         'yearfilter'=>'required',
+    //     ]);
+    //         $yearfilter=request('yearfilter');
+    //         $years=DB::select(" select Distinct Year from invoices Order By Year desc");
+    //         $months=DB::select(" select Distinct Month from invoices where year=?",[$yearfilter]);
+    //         $sales=DB::table('invoices')
+    //         ->join('users','users.User_ID','=','invoices.UsersID')
+    //         ->join('currency','currency.id','=','invoices.currency_id')
+    //         ->where('Year',$yearfilter)
+    //         ->OrderBY('Time','desc')
+    //         ->get();
+    //         foreach ($sales as $sale ) {
+    //             $item[$sale->ID]=DB::table('invoiceitem')
+    //             ->join('Products','Products.ID','=','invoiceitem.ProductsID')
+    //             ->where('InvoicesID',$sale->ID)->get();
+    //         }
             
-            //return the products view along with the product data
-           return view('Administrator/sales',[
-               'sales'=>$sales,
-               'item'=>$item,
-               'years'=>$years,
-               'yearfilter'=>$yearfilter,
-               'months'=>$months,
-           ]);  
-        }  
+    //         //return the products view along with the product data
+    //        return view('Administrator/sales',[
+    //            'sales'=>$sales,
+    //            'item'=>$item,
+    //            'years'=>$years,
+    //            'yearfilter'=>$yearfilter,
+    //            'months'=>$months,
+    //        ]);  
+    //     }  
         
 
              
-         //-----------------------------------------------------------------------------------------------------------------------------------------------
-    //function to get categories from database for add products page
-    public function filtermonth()
-    {
-        $data= request()-> validate([
+    //      //-----------------------------------------------------------------------------------------------------------------------------------------------
+    // //function to get categories from database for add products page
+    // public function filtermonth()
+    // {
+    //     $data= request()-> validate([
             
-            'monthfilter'=>'required',
-            'month_year'=>'required',
-        ]);
-            $monthfilter=request('monthfilter');
-            $yearfilter=request('month_year');
-            $years=DB::select(" select Distinct Year from invoices Order By Year desc");
-            $months=DB::select(" select Distinct Month from invoices where year=?",[$yearfilter]);
-            $days=DB::select(" select Distinct Day from invoices where year=? and Month=?",[$yearfilter,$monthfilter]);
-            $sales=DB::table('invoices')
-            ->join('users','users.User_ID','=','invoices.UsersID')
-            ->join('currency','currency.id','=','invoices.currency_id')
-            ->whereRaw('Year=? and Month=?',[$yearfilter,$monthfilter])
-            ->OrderBY('Time','desc')
-            ->get();
-            foreach ($sales as $sale ) {
-                $item[$sale->ID]=DB::table('invoiceitem')
-                ->join('Products','Products.ID','=','invoiceitem.ProductsID')
-                ->where('InvoicesID',$sale->ID)->get();
-            }
+    //         'monthfilter'=>'required',
+    //         'month_year'=>'required',
+    //     ]);
+    //         $monthfilter=request('monthfilter');
+    //         $yearfilter=request('month_year');
+    //         $years=DB::select(" select Distinct Year from invoices Order By Year desc");
+    //         $months=DB::select(" select Distinct Month from invoices where year=?",[$yearfilter]);
+    //         $days=DB::select(" select Distinct Day from invoices where year=? and Month=?",[$yearfilter,$monthfilter]);
+    //         $sales=DB::table('invoices')
+    //         ->join('users','users.User_ID','=','invoices.UsersID')
+    //         ->join('currency','currency.id','=','invoices.currency_id')
+    //         ->whereRaw('Year=? and Month=?',[$yearfilter,$monthfilter])
+    //         ->OrderBY('Time','desc')
+    //         ->get();
+    //         foreach ($sales as $sale ) {
+    //             $item[$sale->ID]=DB::table('invoiceitem')
+    //             ->join('Products','Products.ID','=','invoiceitem.ProductsID')
+    //             ->where('InvoicesID',$sale->ID)->get();
+    //         }
             
-            //return the products view along with the product data
-           return view('Administrator/sales',[
-               'sales'=>$sales,
-               'item'=>$item,
-               'years'=>$years,
-               'yearfilter'=>$yearfilter,
-               'monthfilter'=>$monthfilter,
-               'months'=>$months,
-               'days'=>$days,
-           ]);  
-        }  
+    //         //return the products view along with the product data
+    //        return view('Administrator/sales',[
+    //            'sales'=>$sales,
+    //            'item'=>$item,
+    //            'years'=>$years,
+    //            'yearfilter'=>$yearfilter,
+    //            'monthfilter'=>$monthfilter,
+    //            'months'=>$months,
+    //            'days'=>$days,
+    //        ]);  
+    //     }  
 
               
-         //-----------------------------------------------------------------------------------------------------------------------------------------------
-    //function to get categories from database for add products page
-    public function filterday()
-    {
-        $data= request()-> validate([
+    //      //-----------------------------------------------------------------------------------------------------------------------------------------------
+    // //function to get categories from database for add products page
+    // public function filterday()
+    // {
+    //     $data= request()-> validate([
             
-            'dayfilter'=>'required',
-            'day_month'=>'required',
-            'day_year'=>'required',
-        ]);
-            $dayfilter=request('dayfilter');
-            $monthfilter=request('day_month');
-            $yearfilter=request('day_year');
-            $years=DB::select(" select Distinct Year from invoices Order By Year desc");
-            $months=DB::select(" select Distinct Month from invoices where year=?",[$yearfilter]);
-            $days=DB::select(" select Distinct Day from invoices where year=? and Month=?",[$yearfilter,$monthfilter]);
-            $sales=DB::table('invoices')
-            ->join('users','users.User_ID','=','invoices.UsersID')
-            ->join('currency','currency.id','=','invoices.currency_id')
-            ->whereRaw('Year=? and Month=? and day=?',[$yearfilter,$monthfilter,$dayfilter])
-            ->OrderBY('Time','desc')
-            ->get();
-            foreach ($sales as $sale ) {
-                $item[$sale->ID]=DB::table('invoiceitem')
-                ->join('Products','Products.ID','=','invoiceitem.ProductsID')
-                ->where('InvoicesID',$sale->ID)->get();
-            }
+    //         'dayfilter'=>'required',
+    //         'day_month'=>'required',
+    //         'day_year'=>'required',
+    //     ]);
+    //         $dayfilter=request('dayfilter');
+    //         $monthfilter=request('day_month');
+    //         $yearfilter=request('day_year');
+    //         $years=DB::select(" select Distinct Year from invoices Order By Year desc");
+    //         $months=DB::select(" select Distinct Month from invoices where year=?",[$yearfilter]);
+    //         $days=DB::select(" select Distinct Day from invoices where year=? and Month=?",[$yearfilter,$monthfilter]);
+    //         $sales=DB::table('invoices')
+    //         ->join('users','users.User_ID','=','invoices.UsersID')
+    //         ->join('currency','currency.id','=','invoices.currency_id')
+    //         ->whereRaw('Year=? and Month=? and day=?',[$yearfilter,$monthfilter,$dayfilter])
+    //         ->OrderBY('Time','desc')
+    //         ->get();
+    //         foreach ($sales as $sale ) {
+    //             $item[$sale->ID]=DB::table('invoiceitem')
+    //             ->join('Products','Products.ID','=','invoiceitem.ProductsID')
+    //             ->where('InvoicesID',$sale->ID)->get();
+    //         }
             
-            //return the products view along with the product data
-           return view('Administrator/sales',[
-               'sales'=>$sales,
-               'item'=>$item,
-               'years'=>$years,
-               'yearfilter'=>$yearfilter,
-               'monthfilter'=>$monthfilter,
-               'dayfilter'=>$dayfilter,
-               'months'=>$months,
-               'days'=>$days,
-           ]);  
-        }  
+    //         //return the products view along with the product data
+    //        return view('Administrator/sales',[
+    //            'sales'=>$sales,
+    //            'item'=>$item,
+    //            'years'=>$years,
+    //            'yearfilter'=>$yearfilter,
+    //            'monthfilter'=>$monthfilter,
+    //            'dayfilter'=>$dayfilter,
+    //            'months'=>$months,
+    //            'days'=>$days,
+    //        ]);  
+    //     }  
 
     
         
@@ -776,7 +846,7 @@ class ShoppingController extends Controller
             $mysalesTM;
             $mysalesT;
             $salesmade;
-            $attendants=DB::table('users')->where('UserTypesID','3')->get();
+            $attendants=DB::table('users')->whereRaw('UserTypesID=3 and Enabled=1')->get();
             foreach ($attendants as $attendant ) {
                 $userId=$attendant->User_ID;
                 $mysalecount[$attendant->User_ID]=DB::table('invoices')->whereRaw('UsersID=?',[$userId])->count();

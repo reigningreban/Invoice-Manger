@@ -94,15 +94,15 @@ if (session()->exists('details')) {
                     </div>
                     </a>
                 </div>
-                <div class="col-xl-3 col-sm-6 py-2">
+                <div class="col-xl-3 col-sm-6 py-2" data-toggle="modal" data-target="#myModal">
                     <a href="#">
                     <div class="card bg-basic h-100">
                         <div class="card-body bg-basic">
                             <div class="rotate">
                                 <i class="fas fa-cog fa-4x"></i>
                             </div>
-                            <h6 class="text-uppercase">Reports</h6>
-                            <h5 class="display-6">125</h5>
+                            <h6 class="text-uppercase">Company Details</h6>
+                            <h5 class="display-6"></h5>
                    </div>
                     </div>
                     </a>

@@ -25,6 +25,7 @@
             <table class="table table-bordered table-sm" id="example">
                 <thead class="thead-dark">
                     <tr>
+                        <th>ID</th>
                         <th>Date</th>
                         <th>Time</th>
                         <th>Product(s)</th>
@@ -36,6 +37,7 @@
                 <tbody>
                     @foreach($sales as $sale)
                         <tr>
+                            <td>{{$sale->ID}}</td>
                             <td>{{date('d-m-Y',$sale->Time)}}</td>
                             <td>{{date('H:i:s',$sale->Time)}}</td>
                             <td>

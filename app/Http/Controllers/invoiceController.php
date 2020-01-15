@@ -34,7 +34,7 @@ class invoiceController extends Controller
             $tomorrow=strtotime('tomorrow 00:00');
             $today = strtotime('today 00:00');
         
-            $userNum=DB::table('users')->count();
+            $userNum=DB::table('users')->where('Enabled',1)->count();
             $productNum=DB::table('products')->count();
             $categoryNum=DB::table('categories')->count();
             $reorderNum=DB::table('products')->whereRaw('Reorder_level > instock')->count();
@@ -135,7 +135,7 @@ class invoiceController extends Controller
         return redirect('login');
     }else {
         //get the users data from DB
-         $users=DB::table('users')->join('usertypes','users.UserTypesID','=','UserTypes.ID')
+         $users=DB::table('users')->where('Enabled',1)->join('usertypes','users.UserTypesID','=','UserTypes.ID')
          ->get();
         
         //return the users view
@@ -156,9 +156,8 @@ class invoiceController extends Controller
         return redirect('login');
     }else {
         //Id comes from the webpage
-        DB::delete('delete from users where User_Id = ?',[$id]);
+        DB::table('users')->where('User_ID',$id)->decrement('Enabled');
         return redirect()->back()->with('success','User has been successfully Deleted');
-    
     }
     }
 
@@ -341,7 +340,7 @@ class invoiceController extends Controller
                     $pword=request('pword');
                     $pass= Hash::make($pword);
                 }else {
-                    $password=DB::table('users')->select('password')->where('User_ID','=',$id)->first();
+                    $password=DB::table('users')->select('password')->whereRaw('User_ID =? and Enabled=?',[$id,1])->first();
                     $pass=$password->password;
                 }
                 
@@ -455,7 +454,10 @@ class invoiceController extends Controller
        $username=request('username');
        $password=request('password');
        //if the user exists fetch the password
-       $db_passer=DB::table('users')->select('password','UserTypesID')->where('username',$username)->first();
+       $db_passer=DB::table('users')->select('password','UserTypesID')->whereRaw('username=? and Enabled=?',[$username,1])->first();
+       if (isset($db_passer)) {
+           
+       
        $db_pass=$db_passer->password;
        $usertypeId=$db_passer->UserTypesID; 
        //compare passwords      
@@ -494,6 +496,9 @@ class invoiceController extends Controller
        }else {
            return redirect()->back()->with('pass_crash','Invalid Username or Password')->withInput();
        }
+       }else {
+        return redirect()->back()->with('pass_crash','Invalid Username or Password')->withInput();
+    }
    }
 
    //logout function

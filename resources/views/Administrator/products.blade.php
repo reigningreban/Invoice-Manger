@@ -15,7 +15,7 @@
          
         </div>
       </div>
-      <div id="printarea">
+      <div>
                          @if (\Session::has('success'))
                             <div class="container alert alert-success">
                                 <ul>
@@ -23,7 +23,20 @@
                                 </ul>
                             </div>
                         @endif
-
+      <div class="container ">
+        <div class="row">
+          <div class="col-md-2"></div>
+          <div class="col-md-8 shad mb-3">
+            <label for="name_search">Search:</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="name_search" name="name_search" placeholder="Search...">
+            </div>
+          </div>
+          <div class="col-md-2"></div>
+        </div>
+      </div>
+      <div class="container shad" id="namesearch"></div>
+      <div id="printarea">
         @foreach($categories as $name)
             
       <div class="shad">
@@ -77,7 +90,7 @@
       </div>
      </div>
       @endforeach
-     
+      </div>
       </div>
     </main>
     
@@ -85,5 +98,21 @@
     $(document).ready(function() {
         $('.prodlist').DataTable();
     } );
+    $("#name_search").keyup(function(){
+      var cat=$("#name_search").val();
+      if (cat!="") {
+          var link="/admin/namesearchadmin/";
+      link+=cat;
+      $.get(link, function(data, status){
+            let myresult = ("Data: " + data + "\nStatus: " + status);
+            
+           document.getElementById('namesearch').innerHTML =data;
+       });
+      }else{
+        document.getElementById('namesearch').innerHTML ="<div></div>"
+      }
+      
+    
+  });
   </script>
 @endsection

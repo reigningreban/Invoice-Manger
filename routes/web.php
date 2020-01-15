@@ -45,13 +45,12 @@ Route::get('login', function () {
         return view('login');
     }
 });
-// Route::post('attendant/dash','shoppingController@categoryRequest')->name('fetchproducts.post');
+
 Route::get('attendant/filtercat/{id}','shoppingController@categoryRequest');
 Route::get('tester/{id}','testController@categoryRequest');
 
 
-Route::get('ajaxRequest', 'AjaxController@ajaxRequest');
-Route::post('ajaxRequest', 'AjaxController@ajaxRequestPost')->name('ajaxRequest.post');
+
 
 Route::get('admin/dash', 'invoiceController@index');
 Route::view('attendant/receipt','Attendant/receipt');
@@ -62,6 +61,7 @@ Route::post('admin/addcategory','shoppingController@addcategory');
 Route::post('admin/edituser/{id}','invoiceController@editUser');
 Route::get('attendant/idsearch/{id}','shoppingController@idsearch');
 Route::get('attendant/namesearch/{name}','shoppingController@namesearch');
+Route::get('admin/namesearchadmin/{name}','shoppingController@namesearchadmin');
 Route::post('admin/editproduct/{id}','invoiceController@editProduct');
 Route::post('admin/adduser','invoiceController@adduser');
 Route::post('admin/addproduct','invoiceController@addproduct');
@@ -82,9 +82,7 @@ Route::get('attendant/cartdelete/{id}','shoppingController@deleteproduct');
 
 
 Route::post('attendant/checkout','shoppingController@checkout');
-Route::post('admin/sales/filteryear','shoppingController@filteryear');
-Route::post('admin/sales/filtermonth','shoppingController@filtermonth');
-Route::post('admin/sales/filterday','shoppingController@filterday');
+
 Route::post('admin/editcompany','invoiceController@editcompany');
 Route::get('admin/sales','shoppingController@getsales');
 
